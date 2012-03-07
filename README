@@ -1,0 +1,12 @@
+This modification allows users to map ctrl+r to a graphical reverse menu lookup of the previous commands
+
+
+I have created a new function map
+
+rl_find to "graphical-search-history"  
+
+to be used in the users ~/.inputrc
+
+I have used the ncurses library to implement a graphical history lookup.  I'm not sure if this is the best way to attack this problem.  Also, I'm not sure if this functionality should be in the readline 
+library or moved out to the Bash sources.  Ideally I'd like to implement a drop down box completion mechanism like Firefox uses in the address bar or the ^N^P completion in Vim7.  
+
