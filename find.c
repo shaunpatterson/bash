@@ -50,22 +50,22 @@
 /* List node */
 typedef struct __rl_find_element
 {
-	char *str;
+    char *str;
 
-	int result_index;
-	struct _rl_find_element *next;
-	struct _rl_find_element *prev;
+    int result_index;
+    struct _rl_find_element *next;
+    struct _rl_find_element *prev;
 } _rl_find_element;
 
 /* Find parameters */
 typedef struct __rl_find_cxt 
 {
-	char *selected_string;
-	char *final_prompt;
-	
-	_rl_find_element *result_list;
-	int result_list_selection;
-	int result_list_size;
+    char *selected_string;
+    char *final_prompt;
+    
+    _rl_find_element *result_list;
+    int result_list_selection;
+    int result_list_size;
 } _rl_find_cxt;
 
 
@@ -104,48 +104,49 @@ static int _rl_find_results_check_dup PARAMS((_rl_find_element*, char*));
 /*
  * Find recent command
  */
-int rl_find (nothing, key) 
-  int nothing, key;
+int rl_find (unused, key) 
+  int unused, key;
 {
-	int c;
-	Keymap map;
+    int c;
+    Keymap map;
 
-	/* Initialize find context */
-  cxt = _rl_find_init ();
-	_rl_find_done = 0;
+    /* Initialize find context */
+    cxt = _rl_find_init ();
+    _rl_find_done = 0;
 
 
-	/* Create a copy of the current keymap 
-	 *  and override certain functions (up, down, enter, etc) */
-	map = _rl_find_remap (rl_get_keymap ());
+    /* Create a copy of the current keymap 
+     *  and override certain functions (up, down, enter, etc) */
+    map = _rl_find_remap (rl_get_keymap ());
 
-	/* Set up display */
-	_rl_find_display_start (cxt);
+    /* Set up display */
+    _rl_find_display_start (cxt);
 
-	while (_rl_find_done == 0) {
+    while (_rl_find_done == 0) {
 
-		/* Find the matches and display */
-		_rl_find_get_matches (cxt);
-		_rl_find_display_matches (cxt);
+        /* Find the matches and display */
+        _rl_find_get_matches (cxt);
+        _rl_find_display_matches (cxt);
 
-		/* Get next key */
-		RL_SETSTATE(RL_STATE_MOREINPUT);
-		c = rl_read_key ();
-		RL_UNSETSTATE(RL_STATE_MOREINPUT);
-  	
-		
-		/* Note, not sure of the best way to handle Ctrl+C 
-		 *  On Ctrl+C, discard_keymap and find_fini
-		 *  do not get called */
-		_rl_dispatch (c, map);
+        /* Get next key */
+        RL_SETSTATE(RL_STATE_MOREINPUT);
+        c = rl_read_key ();
+        RL_UNSETSTATE(RL_STATE_MOREINPUT);
+      
+        
+        /* Note, not sure of the best way to handle Ctrl+C 
+         *  On Ctrl+C, discard_keymap and find_fini
+         *  do not get called */
+        _rl_dispatch (c, map);
 
-  }
-	_rl_find_display_stop (cxt);
+    }
 
-	/* Free copy of the keymap */
-	rl_discard_keymap (map);
+    _rl_find_display_stop (cxt);
 
-  return (_rl_find_fini (cxt));
+    /* Free copy of the keymap */
+    rl_discard_keymap (map);
+
+    return (_rl_find_fini (cxt));
 }
 
 
@@ -157,31 +158,31 @@ int rl_find (nothing, key)
 
 /* Set up a find parameters */
 static _rl_find_cxt *_rl_find_init () {
-  _rl_find_cxt *cxt;
-  
-  cxt = (_rl_find_cxt *)xmalloc (sizeof (_rl_find_cxt));
- 
+    _rl_find_cxt *cxt;
 
-	/* Set up result list */
-	cxt->result_list = NULL;
-	cxt->result_list_size = 0;
-	cxt->result_list_selection = 0;
-	cxt->selected_string = NULL;
+    cxt = (_rl_find_cxt *)xmalloc (sizeof (_rl_find_cxt));
 
-  return cxt;
+
+    /* Set up result list */
+    cxt->result_list = NULL;
+    cxt->result_list_size = 0;
+    cxt->result_list_selection = 0;
+    cxt->selected_string = NULL;
+
+    return cxt;
 }
 
 /* Cleanup */
 static int _rl_find_fini (cxt) 
-  _rl_find_cxt *cxt;
+    _rl_find_cxt *cxt;
 {
-	/* Reset & free matches */
-	_rl_find_reset_matches (cxt);  
+    /* Reset & free matches */
+    _rl_find_reset_matches (cxt);  
 
-	/* Free final prompt */
-	FREE (cxt->final_prompt);
+    /* Free final prompt */
+    FREE (cxt->final_prompt);
 
-	return 1;
+    return 1;
 }
 
 
@@ -198,53 +199,53 @@ static int _rl_find_fini (cxt)
  *  rl_discard_key is used to free all of these 
  */
 static Keymap _rl_find_remap (original_map) 
-	Keymap original_map;
+    Keymap original_map;
 {
-	Keymap map;
-	int i = 0;
+    Keymap map;
+    int i = 0;
 
-	/* Create a copy of the keymap */
-	map = rl_copy_keymap (original_map);
+    /* Create a copy of the keymap */
+    map = rl_copy_keymap (original_map);
 
-	/* Lookup rl_get_previous_history */
-	for (i = 0; i < KEYMAP_SIZE; i++) {
+    /* Lookup rl_get_previous_history */
+    for (i = 0; i < KEYMAP_SIZE; i++) {
 
-		if (map [i].type == ISKMAP) {
-			/* Found a key map, remap keys here too */
-			map [i].function = KEYMAP_TO_FUNCTION (_rl_find_remap (FUNCTION_TO_KEYMAP (map, i)));
-		} 
-		else if(map [i].type == ISFUNC) {
+        if (map [i].type == ISKMAP) {
+            /* Found a key map, remap keys here too */
+            map [i].function = KEYMAP_TO_FUNCTION (_rl_find_remap (FUNCTION_TO_KEYMAP (map, i)));
+        } 
+        else if(map [i].type == ISFUNC) {
 
-			/* Remap functions */
-			if (map [i].function == rl_get_previous_history) {
-				rl_bind_key_in_map (i, _rl_find_scroll_up, map);
-			} 
-			else if (map [i].function == rl_get_next_history) {
-				rl_bind_key_in_map (i, _rl_find_scroll_down, map);
-			} 
-			else if (map [i].function == rl_newline) 
-			{
-				rl_bind_key_in_map (i, _rl_find_select_cmd, map);
-			}
-			else if (map [i].function == rl_complete) {
-				/* Make a more robust tab completion for this? */
-			}
-			else if (map [i].function == rl_possible_completions) {
-				/* Override the complete function perhaps? */
-			}
-			else if (map [i].function == (rl_command_func_t *)0x0) {
-				rl_bind_key_in_map (i, _rl_find_break, map);
-			}
-			else {
-			}
+            /* Remap functions */
+            if (map [i].function == rl_get_previous_history) {
+                rl_bind_key_in_map (i, _rl_find_scroll_up, map);
+            } 
+            else if (map [i].function == rl_get_next_history) {
+                rl_bind_key_in_map (i, _rl_find_scroll_down, map);
+            } 
+            else if (map [i].function == rl_newline) 
+            {
+                rl_bind_key_in_map (i, _rl_find_select_cmd, map);
+            }
+            else if (map [i].function == rl_complete) {
+                /* Make a more robust tab completion for this? */
+            }
+            else if (map [i].function == rl_possible_completions) {
+                /* Override the complete function perhaps? */
+            }
+            else if (map [i].function == (rl_command_func_t *)0x0) {
+                rl_bind_key_in_map (i, _rl_find_break, map);
+            }
+            else {
+            }
 
-		}
-		else {
-			/* Not sure about this yet */
-		}
-	}
+        }
+        else {
+            /* Not sure about this yet */
+        }
+    }
 
-	return map;
+    return map;
 }
 
 
@@ -255,61 +256,61 @@ static Keymap _rl_find_remap (original_map)
 
 /* Select the selected command */
 static int _rl_find_select_cmd (ignored, key) 
-	int ignored;
-	int key;
+    int ignored;
+    int key;
 {
-	if (cxt->selected_string) {
-		/* Set prompt to current selection */
-		cxt->final_prompt = strdup (cxt->selected_string);
-	} else {
-		/* No search selected/found, make prompt current search */
-		cxt->final_prompt = strdup (rl_line_buffer);
-	}
+    if (cxt->selected_string) {
+        /* Set prompt to current selection */
+        cxt->final_prompt = strdup (cxt->selected_string);
+    } else {
+        /* No search selected/found, make prompt current search */
+        cxt->final_prompt = strdup (rl_line_buffer);
+    }
 
-	/* Set exit flag */
-	_rl_find_done = 1;
+    /* Set exit flag */
+    _rl_find_done = 1;
 
-	return key;
+    return key;
 }
 
 /* Scroll up */
 static int _rl_find_scroll_up (ignored, key) 
-	int ignored;
-	int key;
+    int ignored;
+    int key;
 {
-	cxt->result_list_selection--;
+    cxt->result_list_selection--;
 
-	/* Wrap around */
-	if (cxt->result_list_selection < 0) {
-		cxt->result_list_selection = cxt->result_list_size;
-	}
+    /* Wrap around */
+    if (cxt->result_list_selection < 0) {
+        cxt->result_list_selection = cxt->result_list_size;
+    }
 
-	return key;
+    return key;
 }
 
 /* Scroll down */
 static int _rl_find_scroll_down (ignored, key)
-	int ignored;
-	int key;
+    int ignored;
+    int key;
 {
-	cxt->result_list_selection++;
+    cxt->result_list_selection++;
 
-	/* Wrap around */
-	if (cxt->result_list_selection > cxt->result_list_size) {
-		cxt->result_list_selection = 0;
-	}
+    /* Wrap around */
+    if (cxt->result_list_selection > cxt->result_list_size) {
+        cxt->result_list_selection = 0;
+    }
 
-	return key;
+    return key;
 }
 
 /* Ctrl+C'd */
 static int _rl_find_break (ignored, key)
-	int ignored;
-	int key;
+    int ignored;
+    int key;
 {
-	_rl_find_done = 1;
+    _rl_find_done = 1;
 
-	return key;
+    return key;
 }
 
 
@@ -318,55 +319,55 @@ static int _rl_find_break (ignored, key)
  *--------------------------------------------------*/
 static void _rl_find_display_start () 
 {
-	/* Start curses mode */
-	initscr ();
-	clear ();
-	refresh ();
+    /* Start curses mode */
+    initscr ();
+    clear ();
+    refresh ();
 }
 
 static void _rl_find_display_stop (cxt) 
-	_rl_find_cxt *cxt;
+    _rl_find_cxt *cxt;
 {
-	endwin ();
+    endwin ();
 
-	/* Set the prompt to the selected line */
-	rl_replace_line ("", 0);
-	rl_insert_text (cxt->final_prompt);
-	rl_refresh_line (0,0);
+    /* Set the prompt to the selected line */
+    rl_replace_line ("", 0);
+    rl_insert_text (cxt->final_prompt);
+    rl_refresh_line (0,0);
 }
 
 
 /* Display all search matches */
 static void _rl_find_display_matches (cxt)
-	_rl_find_cxt *cxt;
+    _rl_find_cxt *cxt;
 {
-	_rl_find_element *current_element = cxt->result_list;
+    _rl_find_element *current_element = cxt->result_list;
 
-	clear ();
-	printw ("Find: %s\n", rl_line_buffer);
+    clear ();
+    printw ("Find: %s\n", rl_line_buffer);
 
-	/* Loop through the result list */
-	current_element = cxt->result_list;
-	while (current_element != NULL) {
+    /* Loop through the result list */
+    current_element = cxt->result_list;
+    while (current_element != NULL) {
 
-		/* Highlight current selection */
-		if (current_element->result_index == cxt->result_list_selection) {
-			attron(A_REVERSE);
-			printw ("%s\n", current_element->str);
-			attroff(A_REVERSE);
+        /* Highlight current selection */
+        if (current_element->result_index == cxt->result_list_selection) {
+            attron(A_REVERSE);
+            printw ("%s\n", current_element->str);
+            attroff(A_REVERSE);
 
-			cxt->selected_string = current_element->str;
-		} else {
-			printw ("%s\n", current_element->str);
-		}
+            cxt->selected_string = current_element->str;
+        } else {
+            printw ("%s\n", current_element->str);
+        }
 
-		current_element = (_rl_find_element *)current_element->next;
+        current_element = (_rl_find_element *)current_element->next;
 
-	}
+    }
 
-	/* Print out prompt at bottom */
-	mvprintw (LINES - 1, 0, "%s%s", rl_prompt, rl_line_buffer);
-	refresh ();
+    /* Print out prompt at bottom */
+    mvprintw (LINES - 1, 0, "%s%s", rl_prompt, rl_line_buffer);
+    refresh ();
 
 }
 
@@ -384,152 +385,152 @@ static void _rl_find_display_matches (cxt)
  *  duplicates
  */
 static void _rl_find_get_matches (cxt) 
-	_rl_find_cxt *cxt;
+    _rl_find_cxt *cxt;
 {
-	/* History */
-	HISTORY_STATE *hstate = NULL;
-	HIST_ENTRY **hlist = NULL;
-	int history_pos = 0;
+    /* History */
+    HISTORY_STATE *hstate = NULL;
+    HIST_ENTRY **hlist = NULL;
+    int history_pos = 0;
 
-	/* Search string */
-	char *search_string = rl_line_buffer;
-	
-	
-	/* Free any old matches and start over */
-	_rl_find_reset_matches (cxt);
+    /* Search string */
+    char *search_string = rl_line_buffer;
 
-	/* Get history information and start from
-	 *  end of the history to the start */
-	hlist = history_list ();
-	hstate = history_get_history_state ();
-	history_pos = hstate->length-1;
 
-	/* Find as many results as the screen can show */
-	while (hlist[history_pos] && history_pos > 0 && cxt->result_list_size < LINES - 3) {
-		char *current_line = hlist[history_pos]->line;
+    /* Free any old matches and start over */
+    _rl_find_reset_matches (cxt);
 
-		/* Match to the whole search line */
-		if (STREQN (search_string, current_line, strlen (search_string))) {
-			/* Line match found */
+    /* Get history information and start from
+     *  end of the history to the start */
+    hlist = history_list ();
+    hstate = history_get_history_state ();
+    history_pos = hstate->length-1;
 
-			/* Do not add duplicate lines into the result list */
-			if (_rl_find_results_check_dup (cxt->result_list, current_line) == 0) {
-				/* Add increases result_list_size by 1 */
-				cxt->result_list = _rl_find_results_add (cxt->result_list, strdup (current_line));
-			}
-		}
-		history_pos--;
-	
-	};
+    /* Find as many results as the screen can show */
+    while (hlist[history_pos] && history_pos > 0 && cxt->result_list_size < LINES - 3) {
+        char *current_line = hlist[history_pos]->line;
 
-	/* Only reset the selection if size decreased below */
-	if (cxt->result_list_selection > cxt->result_list_size) {
-		cxt->result_list_selection = cxt->result_list_size;
-	}	
+        /* Match to the whole search line */
+        if (STREQN (search_string, current_line, strlen (search_string))) {
+            /* Line match found */
+
+            /* Do not add duplicate lines into the result list */
+            if (_rl_find_results_check_dup (cxt->result_list, current_line) == 0) {
+                /* Add increases result_list_size by 1 */
+                cxt->result_list = _rl_find_results_add (cxt->result_list, strdup (current_line));
+            }
+        }
+        history_pos--;
+
+    };
+
+    /* Only reset the selection if size decreased below */
+    if (cxt->result_list_selection > cxt->result_list_size) {
+        cxt->result_list_selection = cxt->result_list_size;
+    }    
 }
 
 /* Clear out any matches in the result list */
 static void _rl_find_reset_matches (cxt) 
-	_rl_find_cxt *cxt;
+    _rl_find_cxt *cxt;
 {
-	/* Free list */
-	_rl_find_results_remove_all (cxt->result_list);
+    /* Free list */
+    _rl_find_results_remove_all (cxt->result_list);
 
-	/* Reset selection info */
-	cxt->result_list_size = 0;
-	cxt->selected_string = NULL;
+    /* Reset selection info */
+    cxt->result_list_size = 0;
+    cxt->selected_string = NULL;
 }
 
 
 
 /* Add element */
 static _rl_find_element * _rl_find_results_add (list, result) 
-	_rl_find_element *list;
-	char *result; 
+    _rl_find_element *list;
+    char *result; 
 {
-	_rl_find_element *current_element = list;
+    _rl_find_element *current_element = list;
 
-	if (current_element != NULL) {
-		_rl_find_element *prev = NULL;
+    if (current_element != NULL) {
+        _rl_find_element *prev = NULL;
 
-		/* Find end */
-		while (current_element->next != NULL)
-			current_element = (_rl_find_element *)current_element->next;
-		
-		/* Create new node */
-		current_element->next = (struct _rl_find_element *)xmalloc (sizeof (_rl_find_element));
+        /* Find end */
+        while (current_element->next != NULL)
+            current_element = (_rl_find_element *)current_element->next;
 
-		/* Set up position is list */
-		prev = current_element;
-		current_element = (_rl_find_element *)current_element->next;
-		current_element->next = NULL;
-		current_element->prev = (_rl_find_element *)prev;
+        /* Create new node */
+        current_element->next = (struct _rl_find_element *)xmalloc (sizeof (_rl_find_element));
 
-		/* Set data */
-		current_element->str = result;
-		current_element->result_index = prev->result_index + 1;
-		
-	
-		cxt->result_list_size++;
+        /* Set up position is list */
+        prev = current_element;
+        current_element = (_rl_find_element *)current_element->next;
+        current_element->next = NULL;
+        current_element->prev = (_rl_find_element *)prev;
 
-		return list;
+        /* Set data */
+        current_element->str = result;
+        current_element->result_index = prev->result_index + 1;
 
-	}	else {
-		/* New list */
 
-		current_element = (_rl_find_element *)xmalloc (sizeof (_rl_find_element));
-		current_element->next = NULL;
-		current_element->prev = NULL;
-		current_element->str = result;
-		current_element->result_index = 0;
+        cxt->result_list_size++;
 
-		return current_element;
-	}
+        return list;
+
+    } else {
+        /* New list */
+
+        current_element = (_rl_find_element *)xmalloc (sizeof (_rl_find_element));
+        current_element->next = NULL;
+        current_element->prev = NULL;
+        current_element->str = result;
+        current_element->result_index = 0;
+
+        return current_element;
+    }
 }
 
 static void _rl_find_results_remove_all (list)
-	_rl_find_element *list;
+    _rl_find_element *list;
 {
-	_rl_find_element *current_element = list;
+    _rl_find_element *current_element = list;
 
-	if (current_element == NULL) {
-		return;
-	}
+    if (current_element == NULL) {
+        return;
+    }
 
-	_rl_find_element *tempp;
-	while (current_element->next != NULL) {
-		tempp = (_rl_find_element *)current_element->next;
-		free (current_element->str);
-		free (current_element);
-		current_element = tempp;
-	}
+    _rl_find_element *tempp;
+    while (current_element->next != NULL) {
+        tempp = (_rl_find_element *)current_element->next;
+        free (current_element->str);
+        free (current_element);
+        current_element = tempp;
+    }
 
-	cxt->result_list = NULL;
-	cxt->result_list_size = 0;
+    cxt->result_list = NULL;
+    cxt->result_list_size = 0;
 }
 
 /* Check for to see if result is already in the list */
 static int _rl_find_results_check_dup (list, result)
-	_rl_find_element *list;
-	char *result;
+    _rl_find_element *list;
+    char *result;
 {
-	_rl_find_element *temp = list;
-		
-	if (temp == NULL) {
-		return 0;
-	}
+    _rl_find_element *temp = list;
 
-	/* Found match on first item */
-	if (strcmp (temp->str, result) == 0) {
-		return 1;
-	}
+    if (temp == NULL) {
+        return 0;
+    }
 
-	while (temp->next != NULL) {
-		if (strcmp (temp->str, result) == 0) {
-			return 1;
-		}
-		temp = temp->next;
-	}
+    /* Found match on first item */
+    if (strcmp (temp->str, result) == 0) {
+        return 1;
+    }
 
-	return 0;
+    while (temp->next != NULL) {
+        if (strcmp (temp->str, result) == 0) {
+            return 1;
+        }
+        temp = temp->next;
+    }
+
+    return 0;
 }
